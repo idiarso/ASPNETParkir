@@ -2,41 +2,44 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="text-center mb-0">Login</h3>
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="text-center mb-0 fw-bold">Welcome Back</h3>
                 </div>
-                <div class="card-body">
-                    <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="card-body p-4">
+                    <form asp-controller="Account" asp-action="Login" method="post" class="needs-validation" novalidate>
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         
                         @if (!ViewData.ModelState.IsValid)
                         {
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <div asp-validation-summary="All" class="text-danger"></div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         }
 
-                        <div class="form-group mb-3">
-                            <label for="username" class="form-label">Username</label>
+                        <div class="form-group mb-4">
+                            <label for="username" class="form-label fw-semibold">Username</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
                                 <input type="text" class="form-control" id="username" name="username" required autofocus>
                             </div>
+                            <div class="invalid-feedback">Please enter your username</div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="password" class="form-label">Password</label>
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label fw-semibold">Password</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password" required>
                             </div>
+                            <div class="invalid-feedback">Please enter your password</div>
                         </div>
 
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-4">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
                                 <label class="form-check-label" for="rememberMe">Remember Me</label>
@@ -44,16 +47,16 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary" id="loginButton">
-                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                <span class="button-text">Login</span>
+                            <button type="submit" class="btn btn-primary py-2 fw-bold" id="loginButton">
+                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                <span class="button-text">Sign In</span>
                             </button>
                         </div>
                     </form>
 
-                    <div class="mt-3 text-center">
-                        <p class="mb-0">Don't have an account? <a asp-action="Register" class="text-primary">Register here</a></p>
-                        <p class="mt-2"><a href="#" class="text-muted">Forgot your password?</a></p>
+                    <div class="mt-4 text-center">
+                        <p class="mb-2">Don't have an account? <a asp-action="Register" class="text-primary fw-bold text-decoration-none">Register here</a></p>
+                        <p class="text-muted"><a href="#" class="text-decoration-none">Forgot your password?</a></p>
                     </div>
                 </div>
             </div>
@@ -65,15 +68,16 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
-            // Show/hide password toggle
+            // Show/hide password toggle with improved styling
             const togglePassword = $("<button>", {
                 type: "button",
-                class: "btn btn-outline-secondary",
+                class: "btn btn-outline-secondary bg-light",
                 html: '<i class="bi bi-eye"></i>'
             });
             $("#password").parent().append(togglePassword);
 
-            togglePassword.on("click", function() {
+            togglePassword.on("click", function(e) {
+                e.preventDefault();
                 const passwordInput = $("#password");
                 const icon = $(this).find("i");
                 if (passwordInput.attr("type") === "password") {
@@ -85,7 +89,7 @@
                 }
             });
 
-            // Form validation
+            // Enhanced form validation
             $('form').validate({
                 rules: {
                     username: {
@@ -106,25 +110,38 @@
                         required: "Please enter your password",
                         minlength: "Password must be at least 6 characters long"
                     }
+                },
+                errorElement: 'div',
+                errorClass: 'invalid-feedback',
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
                 }
             });
 
-            // Handle form submission
-            $('form').on('submit', function() {
+            // Improved form submission handling
+            $('form').on('submit', function(e) {
                 if ($(this).valid()) {
                     const button = $('#loginButton');
                     button.prop('disabled', true);
                     button.find('.spinner-border').removeClass('d-none');
-                    button.find('.button-text').text('Logging in...');
+                    button.find('.button-text').text('Signing in...');
                 }
             });
 
-            // Display success message if present in TempData
+            // Enhanced success message display
             if ('@TempData["SuccessMessage"]') {
-                const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">')
+                const alert = $('<div class="alert alert-success alert-dismissible fade show mb-4" role="alert">')
                     .text('@TempData["SuccessMessage"]')
                     .append('<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>');
                 $('.card-body').prepend(alert);
+                
+                // Auto-dismiss success message after 5 seconds
+                setTimeout(function() {
+                    alert.alert('close');
+                }, 5000);
             }
         });
     </script>
