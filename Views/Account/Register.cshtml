@@ -1,0 +1,200 @@
+@model ParkingManagementSystem.Models.User
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-0">Create New Account</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Account" asp-action="Register" method="post">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input asp-for="FirstName" class="form-control" required>
+                                </div>
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input asp-for="LastName" class="form-control" required>
+                                </div>
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" type="email" class="form-control" required>
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <input asp-for="Username" class="form-control" required>
+                            </div>
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" id="Password" name="Password" class="form-control" required>
+                            </div>
+                            <div class="form-text">Password must be at least 8 characters long and contain letters, numbers, and special characters.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="registerButton">
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="button-text">Register</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <p>Already have an account? <a asp-action="Login" class="text-primary">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Show/hide password toggles
+            function addPasswordToggle(inputId) {
+                const togglePassword = $("<button>", {
+                    type: "button",
+                    class: "btn btn-outline-secondary",
+                    html: '<i class="bi bi-eye"></i>'
+                });
+                $("#" + inputId).parent().append(togglePassword);
+
+                togglePassword.on("click", function() {
+                    const passwordInput = $("#" + inputId);
+                    const icon = $(this).find("i");
+                    if (passwordInput.attr("type") === "password") {
+                        passwordInput.attr("type", "text");
+                        icon.removeClass("bi-eye").addClass("bi-eye-slash");
+                    } else {
+                        passwordInput.attr("type", "password");
+                        icon.removeClass("bi-eye-slash").addClass("bi-eye");
+                    }
+                });
+            }
+
+            addPasswordToggle("Password");
+            addPasswordToggle("ConfirmPassword");
+
+            // Form validation
+            $('form').validate({
+                rules: {
+                    FirstName: {
+                        required: true,
+                        minlength: 2
+                    },
+                    LastName: {
+                        required: true,
+                        minlength: 2
+                    },
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Username: {
+                        required: true,
+                        minlength: 3
+                    },
+                    Password: {
+                        required: true,
+                        minlength: 8,
+                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+                    },
+                    ConfirmPassword: {
+                        required: true,
+                        equalTo: '#Password'
+                    }
+                },
+                messages: {
+                    FirstName: {
+                        required: "Please enter your first name",
+                        minlength: "First name must be at least 2 characters long"
+                    },
+                    LastName: {
+                        required: "Please enter your last name",
+                        minlength: "Last name must be at least 2 characters long"
+                    },
+                    Email: {
+                        required: "Please enter your email address",
+                        email: "Please enter a valid email address"
+                    },
+                    Username: {
+                        required: "Please enter a username",
+                        minlength: "Username must be at least 3 characters long"
+                    },
+                    Password: {
+                        required: "Please enter a password",
+                        minlength: "Password must be at least 8 characters long",
+                        pattern: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
+                    },
+                    ConfirmPassword: {
+                        required: "Please confirm your password",
+                        equalTo: "Passwords do not match"
+                    }
+                }
+            });
+
+            // Handle form submission
+            $('form').on('submit', function() {
+                if ($(this).valid()) {
+                    const button = $('#registerButton');
+                    button.prop('disabled', true);
+                    button.find('.spinner-border').removeClass('d-none');
+                    button.find('.button-text').text('Registering...');
+                }
+            });
+
+            // Display success message if present in TempData
+            if ('@TempData["SuccessMessage"]') {
+                const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">')
+                    .text('@TempData["SuccessMessage"]')
+                    .append('<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>');
+                $('.card-body').prepend(alert);
+            }
+        });
+    </script>
+}

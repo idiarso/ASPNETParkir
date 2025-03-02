@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "Capture Vehicle Image";
+    var mode = Context.Request.Query["mode"].ToString();
+    var isEntry = mode == "entry";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@(isEntry ? "Vehicle Entry" : "Vehicle Exit") - Capture Image</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <video id="video" width="640" height="480" class="img-fluid" style="display:none;"></video>
+                        <canvas id="canvas" width="640" height="480" class="img-fluid" style="display:none;"></canvas>
+                        <img id="capturedImage" class="img-fluid mb-3" style="display:none;">
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="startCamera" class="btn btn-primary">Start Camera</button>
+                        <button id="captureImage" class="btn btn-success" style="display:none;">Capture Image</button>
+                        <button id="retakeImage" class="btn btn-secondary" style="display:none;">Retake</button>
+                        <button id="processImage" class="btn btn-primary" style="display:none;">Process</button>
+                    </div>
+
+                    <div id="result" class="mt-4" style="display:none;">
+                        <div class="alert alert-info">
+                            <strong>Detected License Plate:</strong>
+                            <span id="licensePlate"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let capturedImage = document.getElementById('capturedImage');
+        let startButton = document.getElementById('startCamera');
+        let captureButton = document.getElementById('captureImage');
+        let retakeButton = document.getElementById('retakeImage');
+        let processButton = document.getElementById('processImage');
+        let stream = null;
+
+        startButton.onclick = async function() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.play();
+                video.style.display = 'block';
+                startButton.style.display = 'none';
+                captureButton.style.display = 'inline-block';
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Error accessing camera. Please ensure camera permissions are granted.');
+            }
+        };
+
+        captureButton.onclick = function() {
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            capturedImage.src = canvas.toDataURL('image/jpeg');
+            capturedImage.style.display = 'block';
+            video.style.display = 'none';
+            captureButton.style.display = 'none';
+            retakeButton.style.display = 'inline-block';
+            processButton.style.display = 'inline-block';
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+
+        retakeButton.onclick = function() {
+            video.style.display = 'block';
+            capturedImage.style.display = 'none';
+            captureButton.style.display = 'inline-block';
+            retakeButton.style.display = 'none';
+            processButton.style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            startButton.click();
+        };
+
+        processButton.onclick = async function() {
+            try {
+                const imageData = canvas.toDataURL('image/jpeg').split(',')[1];
+                const response = await fetch('@Url.Action("Process" + (isEntry ? "Entry" : "Exit"), "Anpr")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageData: imageData
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('licensePlate').textContent = result.licensePlate;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('Error processing image: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Error processing image:', err);
+                alert('Error processing image. Please try again.');
+            }
+        };
+    </script>
+}

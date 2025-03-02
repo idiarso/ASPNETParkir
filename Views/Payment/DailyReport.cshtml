@@ -1,0 +1,65 @@
+@model ParkingManagementSystem.Services.RevenueReport
+
+@{
+    ViewData["Title"] = "Daily Revenue Report";
+}
+
+<div class="container mt-4">
+    <h2>Daily Revenue Report</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="date">Select Date</label>
+                            <input type="date" id="date" name="date" class="form-control" value="@Model.Date.ToString("yyyy-MM-dd")" />
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">View Report</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Revenue</h6>
+                            <h4 class="card-text">$@Model.TotalRevenue.ToString("F2")</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Transactions</h6>
+                            <h4 class="card-text">@Model.TotalTransactions</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Vehicles</h6>
+                            <h4 class="card-text">@Model.TotalVehicles</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Avg. Stay Duration</h6>
+                            <h4 class="card-text">@Model.AverageStayDuration.ToString("F1") hrs</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

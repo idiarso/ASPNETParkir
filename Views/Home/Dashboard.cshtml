@@ -1,0 +1,121 @@
+@model IEnumerable<ParkingManagementSystem.Models.ParkingSpace>
+@{
+    ViewData["Title"] = "Parking Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="display-4">Parking Dashboard</h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Spaces</h5>
+                    <h2 class="card-text">@Model.Count()</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Available Spaces</h5>
+                    <h2 class="card-text">@Model.Count(x => !x.IsOccupied)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Occupied Spaces</h5>
+                    <h2 class="card-text">@Model.Count(x => x.IsOccupied)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Utilization Rate</h5>
+                    <h2 class="card-text">@(Model.Any() ? $"{(double)Model.Count(x => x.IsOccupied) / Model.Count() * 100:F1}%" : "0%")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Parking Space Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Space Number</th>
+                                    <th>Floor Level</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Vehicle</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var space in Model.OrderBy(s => s.FloorLevel).ThenBy(s => s.SpaceNumber))
+                                {
+                                    <tr>
+                                        <td>@space.SpaceNumber</td>
+                                        <td>@space.FloorLevel</td>
+                                        <td>@space.Type</td>
+                                        <td>
+                                            <span class="badge @(space.IsOccupied ? "bg-danger" : "bg-success")">
+                                                @(space.IsOccupied ? "Occupied" : "Available")
+                                            </span>
+                                        </td>
+                                        <td>@(space.CurrentVehicle?.LicensePlate ?? "-")</td>
+                                        <td>@space.LastUpdated.ToString("g")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach (var activity in (List<ParkingTicket>)ViewBag.RecentActivities)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@activity.Vehicle.LicensePlate</h6>
+                                    <small>@activity.EntryTime.ToString("g")</small>
+                                </div>
+                                <p class="mb-1">Space: @activity.ParkingSpace.SpaceNumber</p>
+                                <small>@(activity.ExitTime.HasValue ? "Exited" : "Parked")</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh the dashboard every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+    </script>
+}

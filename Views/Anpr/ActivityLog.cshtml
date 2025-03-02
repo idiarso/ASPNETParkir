@@ -1,0 +1,58 @@
+@model IEnumerable<ParkingManagementSystem.Models.ParkingTicket>
+@{
+    ViewData["Title"] = "Riwayat Aktivitas ANPR";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Riwayat Aktivitas ANPR</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nomor Plat</th>
+                            <th>Waktu Masuk</th>
+                            <th>Waktu Keluar</th>
+                            <th>Status</th>
+                            <th>Lokasi Parkir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model)
+                        {
+                            <tr>
+                                <td>@ticket.Vehicle.LicensePlate</td>
+                                <td>@ticket.EntryTime.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                <td>
+                                    @(ticket.ExitTime.HasValue ? 
+                                        ticket.ExitTime.Value.ToString("dd/MM/yyyy HH:mm:ss") : 
+                                        "-")
+                                </td>
+                                <td>
+                                    @(ticket.ExitTime.HasValue ? 
+                                        "<span class='badge bg-success'>Selesai</span>" : 
+                                        "<span class='badge bg-primary'>Aktif</span>")
+                                </td>
+                                <td>@ticket.ParkingSpace.SpaceIdentifier</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto refresh every 30 seconds
+            setInterval(function() {
+                location.reload();
+            }, 30000);
+        });
+    </script>
+}

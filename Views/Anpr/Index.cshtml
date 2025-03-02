@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "ANPR Management";
+}
+
+<div class="container mt-4">
+    <h2>ANPR Management</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Vehicle Entry</h5>
+                </div>
+                <div class="card-body">
+                    <a href="@Url.Action("CaptureImage", "Anpr", new { mode = "entry" })" class="btn btn-primary">
+                        Process Vehicle Entry
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Vehicle Exit</h5>
+                </div>
+                <div class="card-body">
+                    <a href="@Url.Action("CaptureImage", "Anpr", new { mode = "exit" })" class="btn btn-primary">
+                        Process Vehicle Exit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div id="recentActivity">
+                        <!-- Recent activity will be loaded here via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // TODO: Implement recent activity loading
+        });
+    </script>
+}

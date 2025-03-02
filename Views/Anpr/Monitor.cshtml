@@ -1,0 +1,140 @@
+@{
+    ViewData["Title"] = "Parking Space Monitor";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Parking Space Monitor</h5>
+                    <div>
+                        <span class="badge bg-success me-2">Available: <span id="availableCount">0</span></span>
+                        <span class="badge bg-danger">Occupied: <span id="occupiedCount">0</span></span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="parkingGrid">
+                        <!-- Parking spaces will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Entries</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group" id="recentEntries">
+                        <!-- Recent entries will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Exits</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group" id="recentExits">
+                        <!-- Recent exits will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateParkingGrid() {
+            fetch('/api/parking/spaces')
+                .then(response => response.json())
+                .then(data => {
+                    const parkingGrid = document.getElementById('parkingGrid');
+                    parkingGrid.innerHTML = '';
+                    
+                    let availableCount = 0;
+                    let occupiedCount = 0;
+
+                    data.forEach(space => {
+                        const spaceElement = document.createElement('div');
+                        spaceElement.className = 'col-md-3 mb-3';
+                        
+                        const status = space.isOccupied ? 'Occupied' : 'Available';
+                        const statusClass = space.isOccupied ? 'danger' : 'success';
+                        
+                        if (space.isOccupied) {
+                            occupiedCount++;
+                        } else {
+                            availableCount++;
+                        }
+
+                        spaceElement.innerHTML = `
+                            <div class="card border-${statusClass}">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Space ${space.spaceNumber}</h5>
+                                    <p class="card-text text-${statusClass}">${status}</p>
+                                    ${space.isOccupied ? `<small>Vehicle: ${space.vehiclePlate}</small>` : ''}
+                                </div>
+                            </div>
+                        `;
+
+                        parkingGrid.appendChild(spaceElement);
+                    });
+
+                    document.getElementById('availableCount').textContent = availableCount;
+                    document.getElementById('occupiedCount').textContent = occupiedCount;
+                });
+        }
+
+        function updateRecentActivity() {
+            // Update recent entries
+            fetch('/api/parking/recent-entries')
+                .then(response => response.json())
+                .then(data => {
+                    const recentEntries = document.getElementById('recentEntries');
+                    recentEntries.innerHTML = data.map(entry => `
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${entry.vehiclePlate}</h6>
+                                <small>${new Date(entry.entryTime).toLocaleTimeString()}</small>
+                            </div>
+                            <small>Space: ${entry.spaceNumber}</small>
+                        </div>
+                    `).join('');
+                });
+
+            // Update recent exits
+            fetch('/api/parking/recent-exits')
+                .then(response => response.json())
+                .then(data => {
+                    const recentExits = document.getElementById('recentExits');
+                    recentExits.innerHTML = data.map(exit => `
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${exit.vehiclePlate}</h6>
+                                <small>${new Date(exit.exitTime).toLocaleTimeString()}</small>
+                            </div>
+                            <small>Duration: ${exit.parkingDuration}</small>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        // Initial update
+        updateParkingGrid();
+        updateRecentActivity();
+
+        // Update every 30 seconds
+        setInterval(() => {
+            updateParkingGrid();
+            updateRecentActivity();
+        }, 30000);
+    </script>
+}

@@ -1,0 +1,47 @@
+@model ParkingManagementSystem.Models.ParkingTicket
+
+@{
+    ViewData["Title"] = "Process Payment";
+}
+
+<div class="container mt-4">
+    <h2>Process Payment</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Payment Details</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Ticket ID:</strong> @ViewBag.TicketId</p>
+                    <p><strong>Parking Fee:</strong> $@ViewBag.ParkingFee.ToString("F2")</p>
+                </div>
+            </div>
+
+            <form asp-action="ProcessPayment" method="post">
+                <input type="hidden" name="ticketId" value="@ViewBag.TicketId" />
+                <input type="hidden" name="amount" value="@ViewBag.ParkingFee" />
+
+                <div class="form-group mb-3">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                        <option value="">Select Payment Method</option>
+                        @foreach (var method in Enum.GetValues(typeof(PaymentMethod)))
+                        {
+                            <option value="@method">@method</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Process Payment</button>
+                <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
